@@ -1,6 +1,6 @@
 <?php
 
-namespace ProgrammerZamanNow\Belajar\PHP\MVC\App;
+namespace HendyNurSholeh\App;
 
 class Router
 {
@@ -34,7 +34,6 @@ class Router
         foreach (self::$routes as $route) {
             $pattern = "#^" . $route['path'] . "$#";
             if (preg_match($pattern, $path, $variables) && $method == $route['method']) {
-
                 // call middleware
                 foreach ($route['middleware'] as $middleware){
                     $instance = new $middleware;
