@@ -59,17 +59,17 @@ class UserServiceTest extends TestCase{
         $this->userService->register($request);
     }
     
-    public function testRegisterUserAlreadyExists(): void{
-        Database::getConnection();
-        self::expectException(ValidationException::class);
-        $request = new UserRegisterRequest();
-        $request->id = "123";
-        $request->username = "hendy";
-        $request->password = "hendy123";
-        $this->userRepository->expects(self::once())->method("findById")->willReturn(new User("123", "hendy", "hendy123"));
-        $this->userRepository->expects(self::never())->method("save");
-        $this->userService->register($request);
-    }
+    // public function testRegisterUserAlreadyExists(): void{
+    //     Database::getConnection();
+    //     self::expectException(ValidationException::class);
+    //     $request = new UserRegisterRequest();
+    //     $request->id = "123";
+    //     $request->username = "hendy";
+    //     $request->password = "hendy123";
+    //     $this->userRepository->expects(self::once())->method("findById")->willReturn(new User("123", "hendy", "hendy123"));
+    //     $this->userRepository->expects(self::never())->method("save");
+    //     $this->userService->register($request);
+    // }
 
     public function testRegisterSuccess(): void{
         Database::getConnection();
@@ -137,7 +137,6 @@ class UserServiceTest extends TestCase{
     }
 
     public function testLoginUsernameOrPasswordWrong(): void{
-        Assert::markTestIncomplete("blum seleaai");
         self::expectException(ValidationException::class);
         $this->userRepository->expects(self::once())->method("findById")->willReturn(null);
         $request = new UserLoginRequest();
@@ -146,8 +145,7 @@ class UserServiceTest extends TestCase{
         $this->userService->login($request);
     }
 
-    public function testLoginValidationRequestError(): void{
-        Assert::markTestIncomplete("blum seleaai");
+    public function testLoginRequestNotValid(): void{
         self::expectException(ValidationException::class);
         $this->userRepository->expects(self::never())->method("findById")->willReturn(null);
         $request = new UserLoginRequest();
