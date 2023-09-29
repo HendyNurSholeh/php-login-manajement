@@ -10,7 +10,6 @@ use PDOException;
 
 class SessionService{
     
-
     public static string $COOKIE_NAME = "X-HYNS-COOKIE";
     private SessionRepository $sessionRepository;
     private UserRepository $userRepository;

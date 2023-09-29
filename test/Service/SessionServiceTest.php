@@ -7,7 +7,7 @@ use HendyNurSholeh\Repository\SessionRepository;
 use HendyNurSholeh\Repository\UserRepository;
 use PHPUnit\Framework\TestCase;
 
-function setCookie(string $name, string $value){
+function setCookie(string $name, string $value, $optional = []){
     $_COOKIE[$name] = $value;
 }
 
