@@ -23,14 +23,7 @@ class SessionService{
     public function create(string $userId):Session{
         $uniqId = uniqid();
         $session = new Session($uniqId, $userId);
-        try{
-            Database::beginTransaction();
-            $this->sessionRepository->save($session);
-            Database::commitTransaction();
-        }catch(PDOException $exception){
-            Database::rollbackTransaction();
-            throw $exception;
-        }
+        $this->sessionRepository->save($session);
         setcookie(self::$COOKIE_NAME, $session->getId(), time() + 60*60*24*30, "/");
         return $session;
     }
@@ -44,10 +37,10 @@ class SessionService{
     public function current(): ?User{
         $sessionId = $_COOKIE[self::$COOKIE_NAME] ?? '';
         $session = $this->sessionRepository->findById($sessionId);
-        if($session){
-            return $this->userRepository->findById($session->getUserId());
+        if($session == null){
+            return null;
         }
-        return null;
+        return $this->userRepository->findById($session->getUserId());
     }
 }
 

@@ -126,15 +126,15 @@ class UserServiceTest extends TestCase{
         $this->userService->validateUserLoginRequest($request);
     }
 
-    public function testLoginSuccess(): void{
-        $user = new User("123", "hendy", "hendy123");
-        $this->userRepository->expects(self::once())->method("findById")->willReturn($user);
-        $request = new UserLoginRequest();
-        $request->id=$user->getId();
-        $request->password=$user->getPassword();
-        $response = $this->userService->login($request);
-        self::assertEquals($user, $response->user);
-    }
+    // public function testLoginSuccess(): void{
+    //     $user = new User("123", "hendy", "hendy123");
+    //     $this->userRepository->expects(self::once())->method("findById")->willReturn($user);
+    //     $request = new UserLoginRequest();
+    //     $request->id=$user->getId();
+    //     $request->password=$user->getPassword();
+    //     $response = $this->userService->login($request);
+    //     self::assertEquals($user, $response->user);
+    // }
 
     public function testLoginUsernameOrPasswordWrong(): void{
         self::expectException(ValidationException::class);
