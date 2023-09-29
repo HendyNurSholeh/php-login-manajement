@@ -65,4 +65,11 @@ class UserController
             ]);
         }
     }
+
+    public function logout(): void{
+        $this->sessionService->destroy();
+        echo "destroy";
+        View::redirect("/");
+    }
+    
 }

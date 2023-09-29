@@ -4,6 +4,11 @@ namespace HendyNurSholeh\App{
         echo "$value";
 }
 }
+namespace HendyNurSholeh\Service{
+    function setCookie(string $cookieName,  string $value, $optional = []){
+        $_COOKIE["X-HYNS-COOKIE"] = $value;
+    }
+}
 namespace HendyNurSholeh\Controller{
     
     use HendyNurSholeh\Model\UserLoginResponse;
@@ -126,6 +131,15 @@ namespace HendyNurSholeh\Controller{
             self::expectOutputRegex("[Id]");
             self::expectOutputRegex("[Password]");
             self::expectOutputRegex("[Sign On]");
+        }
+
+        public function testLogout(): void{
+            putenv("mode=test");
+            $_COOKIE["X-HYNS-COOKIE"] = "123cookieebciu";
+            self::assertNotEmpty($_COOKIE["X-HYNS-COOKIE"], "cookie is empty");
+            $this->userController->logout();
+            var_dump($_COOKIE["X-HYNS-COOKIE"]);
+            self::assertEmpty($_COOKIE["X-HYNS-COOKIE"], "cookie is not empty");
         }
     }
 }
