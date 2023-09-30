@@ -13,9 +13,13 @@ namespace HendyNurSholeh\Controller{
     
     use HendyNurSholeh\Model\UserLoginResponse;
     use HendyNurSholeh\Config\Database;
+    use HendyNurSholeh\Domain\Session;
+    use HendyNurSholeh\Domain\User;
     use HendyNurSholeh\Repository\UserRepository;
     use HendyNurSholeh\Service\UserService;
     use HendyNurSholeh\Model\UserRegisterRequest;
+    use HendyNurSholeh\Repository\SessionRepository;
+    use HendyNurSholeh\Service\SessionService;
     use PHPUnit\Framework\TestCase;
 
     use function PHPUnit\Framework\assertTrue;
@@ -25,13 +29,20 @@ namespace HendyNurSholeh\Controller{
         private UserController $userController;
         private UserRepository $userRepository;
 
+        private SessionRepository $sessionRepository;
+
+        private SessionService $sessionService;
+
         private $userService;
     
         protected function setUp(): void{
             $this->userController = new UserController();
             $this->userRepository = new UserRepository(Database::getConnection());
+            $this->sessionRepository = new SessionRepository(Database::getConnection());
+            $this->sessionService = new SessionService($this->sessionRepository, $this->userRepository);
             $this->userService = $this->createMock(UserService::class);
             $this->userRepository->deleteAll();
+            $this->sessionRepository->deleteAll();
         }
         public function testpostRegisterSuccess(): void{
             putenv("mode=test");
@@ -140,6 +151,52 @@ namespace HendyNurSholeh\Controller{
             $this->userController->logout();
             self::assertEmpty($_COOKIE["X-HYNS-COOKIE"], "cookie is not empty");
         }
+
+        public function testUpdateProfile(): void{
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $this->userController->updateProfile();
+            self::expectOutputRegex("[Profile]");
+            self::expectOutputRegex("[Id]");
+            self::expectOutputRegex("[Name]");
+            self::expectOutputRegex("[123]");
+            self::expectOutputRegex("[hendy123]");
+            self::expectOutputRegex("[Update Profile]");
+        }
+
+        public function testPostUpdateProfileSuccess(): void{
+            putenv("mode=test");
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $_POST["username"] = "joko";
+            $this->userController->postUpdateProfile();
+            self::expectOutputString("Location: /");
+        }
+
+        public function testPostUpdateProfileValidationError(): void{
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $_POST["username"] = "";
+            $this->userController->postUpdateProfile();
+            self::expectOutputRegex("[Profile]");
+            self::expectOutputRegex("[Id]");
+            self::expectOutputRegex("[Name]");
+            self::expectOutputRegex("[Update Profile]");
+            self::expectOutputRegex("[alert]");
+            self::expectOutputRegex("[123]");
+            self::expectOutputRegex("[hendy123]");
+            self::expectOutputRegex("[Id, username can't not blank]");
+        }
+
     }
 }
 
