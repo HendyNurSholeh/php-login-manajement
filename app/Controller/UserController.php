@@ -102,7 +102,7 @@ class UserController
                     "username"=>$user->getUsername(),
                 ]
             ];
-            View::render("/", $model);
+            View::render("User/profile", $model);
         }
     }
 }
