@@ -55,8 +55,8 @@ class UserController
     public function postLogin(): void{
         try{
             $request = new UserLoginRequest();
-            $request->id = trim($_POST["id"]);
-            $request->password = trim($_POST["password"]);
+            $request->id = $_POST["id"];
+            $request->password = $_POST["password"];
             $response = $this->userService->login($request);
             $this->sessionService->create($response->user->getId());
             View::redirect("/");
@@ -86,14 +86,14 @@ class UserController
     }
     
     public function postUpdateProfile(): void{
+        $user = $this->sessionService->current();
         try{
             $request = new UserProfileUpdateRequest();
-            $request->id = $_POST["id"];
+            $request->id = $user->getId();
             $request->username = $_POST["username"];
             $this->userService->updateProfile($request);
             View::redirect("/");
         }catch(Exception $exception){
-            $user = $this->sessionService->current();
             $model = [
                 "title" => "update user profile",
                 "error" => $exception->getMessage(),
