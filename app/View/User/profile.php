@@ -13,13 +13,13 @@
         <div class="col-md-10 mx-auto col-lg-5">
             <form class="p-4 p-md-5 border rounded-3 bg-light" method="post" action="/users/profile">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="id" name="id" placeholder="id" disabled
-                        value="<?= $model['form']['id']; ?>" />
+                    <input type="text" class="form-control" id="id" placeholder="id" disabled
+                        value="<?= $model['form']['id']; ?>" name="id" />
                     <label for="id">Id</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input name="name" type="text" class="form-control" id="name"
-                        value="<?=$model['form']['username']?>" name="username" placeholder="name" />
+                    <input name="username" type="text" class="form-control" id="name"
+                        value="<?=$model['form']['username']?>" placeholder="name" />
                     <label for="name">Name</label>
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Update Profile</button>
