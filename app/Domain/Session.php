@@ -1,10 +1,10 @@
 <?php
 namespace HendyNurSholeh\Domain;
 class Session {
-
-    public function __construct(
-        private string $id,
-        private string $id_user
+	
+	public function __construct(
+		private string $id,
+		private string $userId
     ){}
 
 
@@ -27,16 +27,16 @@ class Session {
 	/**
 	 * @return string
 	 */
-	public function getId_user(): string {
-		return $this->id_user;
+	public function getUserId(): string {
+		return $this->userId;
 	}
 	
 	/**
-	 * @param string $id_user 
+	 * @param string $userId 
 	 * @return self
 	 */
-	public function setId_user(string $id_user): self {
-		$this->id_user = $id_user;
+	public function setUserId(string $userId): self {
+		$this->userId = $userId;
 		return $this;
 	}
 }

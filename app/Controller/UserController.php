@@ -7,18 +7,23 @@ use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Exception\ValidationException;
 use HendyNurSholeh\Model\UserLoginRequest;
 use HendyNurSholeh\Model\UserRegisterRequest;
+use HendyNurSholeh\Repository\SessionRepository;
 use HendyNurSholeh\Repository\UserRepository;
+use HendyNurSholeh\Service\SessionService;
 use HendyNurSholeh\Service\UserService;
 
 class UserController
 {
 
     private UserService $userService;
+    private SessionService $sessionService;
 
     public function __construct(){
         $connection = Database::getConnection();
-        $repository = new UserRepository($connection);
-        $this->userService = new UserService($repository);
+        $userRepository = new UserRepository($connection);
+        $sessionRepository = new SessionRepository($connection);
+        $this->userService = new UserService($userRepository);
+        $this->sessionService = new SessionService($sessionRepository, $userRepository);
     }
 
     public function register(): void{
@@ -50,7 +55,8 @@ class UserController
             $request = new UserLoginRequest();
             $request->id = trim($_POST["id"]);
             $request->password = trim($_POST["password"]);
-            $this->userService->login($request);
+            $response = $this->userService->login($request);
+            $this->sessionService->create($response->user->getId());
             View::redirect("/");
         }catch(ValidationException $ex){
             View::render("User/login", [
@@ -59,4 +65,11 @@ class UserController
             ]);
         }
     }
+
+    public function logout(): void{
+        $this->sessionService->destroy();
+        echo "destroy";
+        View::redirect("/");
+    }
+    
 }
