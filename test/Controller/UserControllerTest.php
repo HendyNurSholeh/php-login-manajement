@@ -138,7 +138,6 @@ namespace HendyNurSholeh\Controller{
             $_COOKIE["X-HYNS-COOKIE"] = "123cookieebciu";
             self::assertNotEmpty($_COOKIE["X-HYNS-COOKIE"], "cookie is empty");
             $this->userController->logout();
-            var_dump($_COOKIE["X-HYNS-COOKIE"]);
             self::assertEmpty($_COOKIE["X-HYNS-COOKIE"], "cookie is not empty");
         }
     }
