@@ -21,6 +21,19 @@ class UserRepositoryTest extends TestCase{
         $userDatabase = $this->userRepository->findById($id);
         self::assertEquals($user, $userDatabase); 
     }
+
+    public function testUpdate(): void{
+        $id = "123";
+        $user = new User($id, "hendy", "hendy123");
+        $this->userRepository->save($user);
+        $newUser = new User($id, "hendyganteng", "hendy12345");
+        $beforeUpdate = $this->userRepository->findById($id);
+        self::assertEquals($user, $beforeUpdate);
+        $this->userRepository->update($newUser);
+        $afterUpdate = $this->userRepository->findById($id);
+        self::assertEquals($newUser, $afterUpdate);
+        self::assertNotEquals($beforeUpdate, $afterUpdate);
+    }
     
     public function testFindById(): void{
         $user = new User(

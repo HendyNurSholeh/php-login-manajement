@@ -7,6 +7,8 @@ use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Exception\ValidationException;
 use HendyNurSholeh\Model\UserLoginRequest;
 use HendyNurSholeh\Model\UserLoginResponse;
+use HendyNurSholeh\Model\UserProfileUpdateRequest;
+use HendyNurSholeh\Model\UserProfileUpdateResponse;
 use HendyNurSholeh\Model\UserRegisterRequest;
 use HendyNurSholeh\Model\UserRegisterResponse;
 use HendyNurSholeh\Repository\UserRepository;
@@ -76,5 +78,35 @@ class UserService{
         }
         $request->id = strtolower($request->id);
         $request->password = strtolower($request->password);
+    }
+
+    public function updateProfile(UserProfileUpdateRequest $userUpdateRequest): UserProfileUpdateResponse{
+        $this->validateUserProfileUpdateRequest($userUpdateRequest);
+        try{
+            Database::beginTransaction();
+            $user = $this->userRepository->findById($userUpdateRequest->id);
+            if($user==null){
+                throw new ValidationException("user is not found");
+            } else{
+                $user->setUsername($userUpdateRequest->username);
+                $this->userRepository->update($user);
+                Database::commitTransaction();
+                $response = new UserProfileUpdateResponse();
+                $response->user = $user;
+                return $response;
+            }
+        }catch(PDOException $exception){
+            Database::rollbackTransaction();
+            throw $exception;
+        }
+    }
+
+    public function validateUserProfileUpdateRequest(UserProfileUpdateRequest $request){
+        if(is_null($request->id) || is_null($request->username) ||
+        trim($request->id) == "" || trim($request->username) == ""){
+         throw new ValidationException("Id, username can't not blank");
+        }
+        $request->id = strtolower($request->id);
+        $request->username = strtolower($request->username);
     }
 }

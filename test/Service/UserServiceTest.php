@@ -6,6 +6,7 @@ use HendyNurSholeh\Config\Database;
 use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Exception\ValidationException;
 use HendyNurSholeh\Model\UserLoginRequest;
+use HendyNurSholeh\Model\UserProfileUpdateRequest;
 use HendyNurSholeh\Model\UserRegisterRequest;
 use HendyNurSholeh\Repository\UserRepository;
 use PHPUnit\Framework\Assert;
@@ -152,5 +153,46 @@ class UserServiceTest extends TestCase{
         $request->id="";
         $request->password=null;
         $this->userService->login($request);
+    }
+
+    public function testUpdateProfileSuccess(): void{
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userRepository->deleteAll();
+        $this->userService = new UserService($this->userRepository);
+        
+        $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
+        $this->userRepository->save($user);
+        $beforeUpdate = $this->userRepository->findById($user->getId());
+        self::assertEquals($user, $beforeUpdate);
+        $user->setUsername("joko");
+        $request = new UserProfileUpdateRequest();
+        $request->id = $user->getId();
+        $request->username = $user->getUsername();
+        $response = $this->userService->updateProfile($request);
+        $afterUpdate = $this->userRepository->findById($user->getId());
+        self::assertNotEquals($beforeUpdate, $afterUpdate);
+        self::assertEquals($user, $response->user);
+        self::assertEquals($afterUpdate, $response->user);
+    }
+    
+    public function testUpdateProfileValidationError(): void{
+        self::expectException(ValidationException::class);
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userRepository->deleteAll();
+        $this->userService = new UserService($this->userRepository);
+        $request = new UserProfileUpdateRequest();
+        $request->id = "12345";
+        $request->username = "";
+        $response = $this->userService->updateProfile($request);
+    }
+    public function testUpdateProfileNotFound(): void{
+        self::expectException(ValidationException::class);
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userRepository->deleteAll();
+        $this->userService = new UserService($this->userRepository);
+        $request = new UserProfileUpdateRequest();
+        $request->id = "not found";
+        $request->username = "hendy";
+        $response = $this->userService->updateProfile($request);
     }
 }
