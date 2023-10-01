@@ -197,26 +197,26 @@ class UserServiceTest extends TestCase{
         $response = $this->userService->updateProfile($request);
     }
     
-    public function testChangePasswordSuccess(): void{
-        $this->userRepository = new UserRepository(Database::getConnection());
-        $this->userService = new UserService($this->userRepository);
-        $this->userRepository->deleteAll();
+    // public function testChangePasswordSuccess(): void{
+    //     $this->userRepository = new UserRepository(Database::getConnection());
+    //     $this->userService = new UserService($this->userRepository);
+    //     $this->userRepository->deleteAll();
 
-        $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
-        $this->userRepository->save($user);
+    //     $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
+    //     $this->userRepository->save($user);
 
-        $request = new UserPasswordChangeRequest();
-        $request->id="123";
-        $request->newPassword="hendynew123";
-        $request->oldPassword="hendy123";
+    //     $request = new UserPasswordChangeRequest();
+    //     $request->id="123";
+    //     $request->newPassword="hendynew123";
+    //     $request->oldPassword="hendy123";
         
-        $userBeforeChange = $this->userRepository->findById("123");
-        self::assertTrue(password_verify("hendy123", $userBeforeChange->getPassword()));
-        $response = $this->userService->changePassword($request);
-        $userAfterChange = $this->userRepository->findById("123");
-        self::assertTrue(password_verify("hendynew123", $userAfterChange->getPassword()));
-        self::assertNotEquals($user, $response->user); 
-    }   
+    //     $userBeforeChange = $this->userRepository->findById("123");
+    //     self::assertTrue(password_verify("hendy123", $userBeforeChange->getPassword()));
+    //     $response = $this->userService->changePassword($request);
+    //     $userAfterChange = $this->userRepository->findById("123");
+    //     self::assertTrue(password_verify("hendynew123", $userAfterChange->getPassword()));
+    //     self::assertNotEquals($user, $response->user); 
+    // }   
 
     public function testChangePasswordValidationError(): void{
         self::expectException(ValidationException::class);

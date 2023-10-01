@@ -1,9 +1,4 @@
 <?php 
-namespace HendyNurSholeh\Service{
-    function setCookie(string $cookieName,  string $value, $optional = []){
-        $_COOKIE["X-HYNS-COOKIE"] = $value;
-    }
-}
 namespace HendyNurSholeh\Controller{
     require_once __DIR__ . "/../Helper/helper.php";
     use HendyNurSholeh\Model\UserLoginResponse;

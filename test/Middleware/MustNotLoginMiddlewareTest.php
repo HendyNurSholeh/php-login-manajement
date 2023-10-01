@@ -1,12 +1,6 @@
 <?php 
-
-namespace HendyNurSholeh\App{
-    function header($value){
-        echo "$value";
-    }
-}
 namespace HendyNurSholeh\Middleware{
-
+    require_once __DIR__ . "/../Helper/helper.php";
     use HendyNurSholeh\Config\Database;
     use HendyNurSholeh\Domain\Session;
     use HendyNurSholeh\Domain\User;
