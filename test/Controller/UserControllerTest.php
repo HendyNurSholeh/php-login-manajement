@@ -1,16 +1,11 @@
 <?php 
-namespace HendyNurSholeh\App{
-    function header($value){
-        echo "$value";
-}
-}
 namespace HendyNurSholeh\Service{
     function setCookie(string $cookieName,  string $value, $optional = []){
         $_COOKIE["X-HYNS-COOKIE"] = $value;
     }
 }
 namespace HendyNurSholeh\Controller{
-    
+    require_once __DIR__ . "/../Helper/helper.php";
     use HendyNurSholeh\Model\UserLoginResponse;
     use HendyNurSholeh\Config\Database;
     use HendyNurSholeh\Domain\Session;
@@ -196,6 +191,75 @@ namespace HendyNurSholeh\Controller{
             self::expectOutputRegex("[hendy123]");
             self::expectOutputRegex("[Id, username can't not blank]");
         }
+
+        public function testChangePassword(): void{
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $this->userController->changePassword();
+            self::expectOutputRegex("[Password]");
+            self::expectOutputRegex("[Id]");
+            self::expectOutputRegex("[Old Password]");
+            self::expectOutputRegex("[New Password]");
+            self::expectOutputRegex("[Change Password]");
+        }
+
+        public function testPostChangePasswordSuccess(): void{
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $_POST["oldPassword"] = "hendy123";
+            $_POST["newPassword"] = "hendy123haha";
+            $this->userController->postChangePassword();
+            self::expectOutputRegex("[Password]");
+            self::expectOutputRegex("[Id]");
+            self::expectOutputRegex("[Old Password]");
+            self::expectOutputRegex("[New Password]");
+            self::expectOutputRegex("[Change Password]");
+            self::expectOutputRegex("[password is successfull change]");
+        }
+
+        public function testPostChangePasswordValidationError(): void{
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $_POST["oldPassword"] = "";
+            $_POST["newPassword"] = "";
+            $this->userController->postChangePassword();
+            self::expectOutputRegex("[Password]");
+            self::expectOutputRegex("[Id]");
+            self::expectOutputRegex("[Old Password]");
+            self::expectOutputRegex("[New Password]");
+            self::expectOutputRegex("[Change Password]");
+            self::expectOutputRegex("[Id or new password or old password can't not blank]");
+        }
+        
+        public function testPostChangePasswordWrongOldPassword(): void{
+            $this->expectOutputRegex("[Password]");
+            $this->expectOutputRegex("[Id]");
+            $this->expectOutputRegex("[Old Password]");
+            $this->expectOutputRegex("[New Password]");
+            $this->expectOutputRegex("[Change Password]");
+            $this->expectOutputRegex("[Old Password is wrong]");
+            $user = new User("123", "hendy123", password_hash("hendy123", PASSWORD_BCRYPT));
+            $session = new Session("session123", $user->getId());
+            $this->userRepository->save($user);
+            $this->sessionRepository->save($session);
+            $_COOKIE["X-HYNS-COOKIE"] = $session->getId();
+            $_POST["oldPassword"] = "salah";
+            $_POST["newPassword"] = "hendyrahasia123";
+            $this->userController->postChangePassword();
+        }
+
+
+
+
 
     }
 }
