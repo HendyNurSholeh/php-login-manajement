@@ -1,52 +1,38 @@
 <?php
 
-namespace ProgrammerZamanNow\Belajar\PHP\MVC\Controller;
+namespace HendyNurSholeh\Controller;
 
-use ProgrammerZamanNow\Belajar\PHP\MVC\App\View;
+use HendyNurSholeh\App\View;
+use HendyNurSholeh\Config\Database;
+use HendyNurSholeh\Repository\SessionRepository;
+use HendyNurSholeh\Repository\UserRepository;
+use HendyNurSholeh\Service\SessionService;
+use UserController;
 
 class HomeController
 {
 
-    function index(): void
-    {
-        $model = [
-            "title" => "Belajar PHP MVC",
-            "content" => "Selamat Belajar PHP MVC dari Programmer Zaman Now"
-        ];
+    private SessionService $sessionService;
 
-        View::render('Home/index', $model);
+    public function __construct() {
+        $conn = Database::getConnection();
+        $sessionRepository = new SessionRepository($conn);
+        $userRepository = new UserRepository($conn);
+        $this->sessionService = new SessionService($sessionRepository, $userRepository);
     }
 
-    function hello(): void
-    {
-        echo "HomeController.hello()";
+    public function index(): void{
+        $user = $this->sessionService->current();
+        if($user == null){
+            View::render("Home/index", [
+                "title" => "PHP Login Manajement"
+            ]);
+        } else{
+            $data = [
+                "title" => "PHP Login Manajement | Dashboard",
+                "username" => $user->getUsername()
+            ];
+            View::render("Home/dashboard", $data);
+        }
     }
-
-    function world(): void
-    {
-        echo "HomeController.world()";
-    }
-
-    function about(): void
-    {
-        echo "Author : Eko Kurniawan Khannedy";
-    }
-
-    function login(): void
-    {
-        $request = [
-            "username" => $_POST['username'],
-            "password" => $_POST['password']
-        ];
-
-        $user = [
-
-        ];
-
-        $response = [
-            "message" => "Login Sukses"
-        ];
-        // kirimkan response ke view
-    }
-
 }
