@@ -1,15 +1,12 @@
 <?php 
 namespace HendyNurSholeh\Service;
-
+require_once __DIR__ . "/../Helper/helper.php";
 use HendyNurSholeh\Domain\Session;
 use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Repository\SessionRepository;
 use HendyNurSholeh\Repository\UserRepository;
 use PHPUnit\Framework\TestCase;
 
-function setCookie(string $name, string $value, $optional = []){
-    $_COOKIE[$name] = $value;
-}
 
 class SessionServiceTest extends TestCase{
     private SessionService $sessionService;

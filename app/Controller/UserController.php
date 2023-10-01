@@ -7,6 +7,7 @@ use HendyNurSholeh\Config\Database;
 use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Exception\ValidationException;
 use HendyNurSholeh\Model\UserLoginRequest;
+use HendyNurSholeh\Model\UserPasswordChangeRequest;
 use HendyNurSholeh\Model\UserProfileUpdateRequest;
 use HendyNurSholeh\Model\UserRegisterRequest;
 use HendyNurSholeh\Repository\SessionRepository;
@@ -103,6 +104,45 @@ class UserController
                 ]
             ];
             View::render("User/profile", $model);
+        }
+    }
+
+    public function changePassword(): void{
+        $user = $this->sessionService->current();
+        $model = [
+            "title" => "change user password",
+            "form" => [
+                "id"=>$user->getId(),
+            ]
+        ];
+        View::render("User/password", $model);
+    }
+
+    public function postChangePassword(): void{
+        $user = $this->sessionService->current();
+        try{
+            $request = new UserPasswordChangeRequest();
+            $request->id = $user->getId();
+            $request->oldPassword = $_POST["oldPassword"];
+            $request->newPassword = $_POST["newPassword"];
+            $this->userService->changePassword($request);
+            $model = [
+                "title" => "change user password",
+                "success" => "password is successfull change",
+                "form" => [
+                    "id"=>$user->getId(),
+                ]
+            ];
+            View::render("User/password", $model);
+        }catch(Exception $exception){
+            $model = [
+                "title" => "change user password",
+                "error" => $exception->getMessage(),
+                "form" => [
+                    "id"=>$user->getId(),
+                ]
+            ];
+            View::render("User/password", $model);
         }
     }
 }
