@@ -124,7 +124,7 @@ class UserService{
             } else if(!password_verify($request->oldPassword, $user->getPassword())){
                 throw new ValidationException("Old Password is wrong");
             }
-            $user->setPassword($request->newPassword);
+            $user->setPassword(password_hash($request->newPassword, PASSWORD_BCRYPT));
             $newUser = $this->userRepository->update($user);
             $response = new UserPasswordChangeResponse();
             $response->user = $newUser;
