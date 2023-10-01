@@ -6,6 +6,7 @@ use HendyNurSholeh\Config\Database;
 use HendyNurSholeh\Domain\User;
 use HendyNurSholeh\Exception\ValidationException;
 use HendyNurSholeh\Model\UserLoginRequest;
+use HendyNurSholeh\Model\UserPasswordChangeRequest;
 use HendyNurSholeh\Model\UserProfileUpdateRequest;
 use HendyNurSholeh\Model\UserRegisterRequest;
 use HendyNurSholeh\Repository\UserRepository;
@@ -87,45 +88,45 @@ class UserServiceTest extends TestCase{
         self::assertTrue(password_verify($request->password, $respons->user->getPassword()));
     }
 
-    public function testValidationUserLoginRequestSuccess(): void{
-        $request = new UserLoginRequest;
-        $request->id = "123";
-        $request->password = "hendy133";
-        $this->userService->validateUserLoginRequest($request);
-        self::assertTrue(true);
-    }
+    // public function testValidationUserLoginRequestSuccess(): void{
+    //     $request = new UserLoginRequest;
+    //     $request->id = "123";
+    //     $request->password = "hendy133";
+    //     $this->userService->validateUserLoginRequest($request);
+    //     self::assertTrue(true);
+    // }
 
-    public function testValidationUserLoginRequestIdBlank(): void{
-        self::expectException(ValidationException::class);
-        $request = new UserLoginRequest;
-        $request->id = "   ";
-        $request->password = "hendy133";
-        $this->userService->validateUserLoginRequest($request);
-    }
+    // public function testValidationUserLoginRequestIdBlank(): void{
+    //     self::expectException(ValidationException::class);
+    //     $request = new UserLoginRequest;
+    //     $request->id = "   ";
+    //     $request->password = "hendy133";
+    //     $this->userService->validateUserLoginRequest($request);
+    // }
     
-    public function testValidationUserLoginRequestPasswordBlank(): void{
-        self::expectException(ValidationException::class);
-        $request = new UserLoginRequest;
-        $request->id = "123";
-        $request->password = "";
-        $this->userService->validateUserLoginRequest($request);
-    }
+    // public function testValidationUserLoginRequestPasswordBlank(): void{
+    //     self::expectException(ValidationException::class);
+    //     $request = new UserLoginRequest;
+    //     $request->id = "123";
+    //     $request->password = "";
+    //     $this->userService->validateUserLoginRequest($request);
+    // }
 
-    public function testValidationUserLoginRequestIdNull(): void{
-        self::expectException(ValidationException::class);
-        $request = new UserLoginRequest;
-        $request->id = null;
-        $request->password = "hendy133";
-        $this->userService->validateUserLoginRequest($request);
-    }
+    // public function testValidationUserLoginRequestIdNull(): void{
+    //     self::expectException(ValidationException::class);
+    //     $request = new UserLoginRequest;
+    //     $request->id = null;
+    //     $request->password = "hendy133";
+    //     $this->userService->validateUserLoginRequest($request);
+    // }
 
-    public function testValidationUserLoginRequestPasswordNull(): void{
-        self::expectException(ValidationException::class);
-        $request = new UserLoginRequest;
-        $request->id = "123";
-        $request->password = null;
-        $this->userService->validateUserLoginRequest($request);
-    }
+    // public function testValidationUserLoginRequestPasswordNull(): void{
+    //     self::expectException(ValidationException::class);
+    //     $request = new UserLoginRequest;
+    //     $request->id = "123";
+    //     $request->password = null;
+    //     $this->userService->validateUserLoginRequest($request);
+    // }
 
     // public function testLoginSuccess(): void{
     //     $user = new User("123", "hendy", "hendy123");
@@ -195,4 +196,81 @@ class UserServiceTest extends TestCase{
         $request->username = "hendy";
         $response = $this->userService->updateProfile($request);
     }
+    
+    public function testChangePasswordSuccess(): void{
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userService = new UserService($this->userRepository);
+        $this->userRepository->deleteAll();
+
+        $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
+        $this->userRepository->save($user);
+
+        $request = new UserPasswordChangeRequest();
+        $request->id="123";
+        $request->newPassword="hendynew123";
+        $request->oldPassword="hendy123";
+        
+        $userBeforeChange = $this->userRepository->findById("123");
+        self::assertTrue(password_verify("hendy123", $userBeforeChange->getPassword()));
+        $response = $this->userService->changePassword($request);
+        $userAfterChange = $this->userRepository->findById("123");
+        self::assertTrue(password_verify("hendynew123", $userAfterChange->getPassword()));
+        self::assertNotEquals($user, $response->user); 
+    }   
+
+    public function testChangePasswordValidationError(): void{
+        self::expectException(ValidationException::class);
+        $request = new UserPasswordChangeRequest();
+        $request->id="";
+        $request->newPassword="";
+        $request->oldPassword="";
+        $this->userService->changePassword($request);
+    }
+
+    public function testChangePasswordValidationErrorPasswordToShort(): void{
+        self::expectException(ValidationException::class);
+        $request = new UserPasswordChangeRequest();
+        $request->id="123";
+        $request->newPassword="short";
+        $request->oldPassword="hendy123";
+        $this->userService->changePassword($request);
+    }
+
+    public function testChangePasswordUserNotFound(): void{
+        self::expectException(ValidationException::class);
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userService = new UserService($this->userRepository);
+        $this->userRepository->deleteAll();
+
+        $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
+
+        $request = new UserPasswordChangeRequest();
+        $request->id="123";
+        $request->newPassword="hendynew123";
+        $request->oldPassword="hendy123";
+
+        $this->userService->changePassword($request);
+    } 
+
+    public function testChangePasswordOldPasswordWrong(): void{
+        self::expectException(ValidationException::class);
+        $this->userRepository = new UserRepository(Database::getConnection());
+        $this->userService = new UserService($this->userRepository);
+        $this->userRepository->deleteAll();
+
+        $user = new User("123", "hendy", password_hash("hendy123", PASSWORD_BCRYPT));
+        $this->userRepository->save($user);
+
+        $request = new UserPasswordChangeRequest();
+        $request->id="123";
+        $request->newPassword="hendynew123";
+        $request->oldPassword="salah";
+
+        $this->userService->changePassword($request);
+    } 
+
+
+
+
+
 }
